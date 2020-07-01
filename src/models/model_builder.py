@@ -1,7 +1,7 @@
 
 import torch
 import torch.nn as nn
-from pytorch_pretrained_bert import BertModel, BertConfig
+from transformers import BertModel, BertConfig
 from torch.nn.init import xavier_uniform_
 
 from models.encoder import TransformerInterEncoder, Classifier, RNNEncoder
