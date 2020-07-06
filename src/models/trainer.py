@@ -10,6 +10,7 @@ from models.reporter import ReportMgr
 from models.stats import Statistics
 from others.logging import logger
 from others.utils import test_rouge, rouge_results_to_str
+from tqdm import tqdm
 
 
 def _tally_parameters(model):
@@ -139,7 +140,7 @@ class Trainer(object):
         while step <= train_steps:
 
             reduce_counter = 0
-            for i, batch in enumerate(train_iter):
+            for i, batch in tqdm(enumerate(train_iter)):
                 if self.n_gpu == 0 or (i % self.n_gpu == self.gpu_rank):
 
                     true_batchs.append(batch)

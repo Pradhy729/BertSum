@@ -44,13 +44,13 @@ class Bert(nn.Module):
     def __init__(self, temp_dir, load_pretrained_bert, bert_config):
         super(Bert, self).__init__()
         if(load_pretrained_bert):
-            self.model = BertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
+            self.model = BertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir, output_hidden_states=True)
         else:
             self.model = BertModel(bert_config)
 
     def forward(self, x, segs, mask):
-        encoded_layers, _ = self.model(x, segs, attention_mask =mask)
-        top_vec = encoded_layers[-1]
+        outputs = self.model(x, token_type_ids=segs, attention_mask =mask)
+        top_vec = outputs[0]
         return top_vec
 
 
@@ -89,8 +89,10 @@ class Summarizer(nn.Module):
         self.load_state_dict(pt['model'], strict=True)
 
     def forward(self, x, segs, clss, mask, mask_cls, sentence_range=None):
-
+        #print(f'The shape of x is {x.shape}, and clss is {clss.shape}')
+        #print(f'The shape of segs is {segs.shape}, the shape of mask is {mask.shape}')
         top_vec = self.bert(x, segs, mask)
+        #print(f'The shape of top_vec is {top_vec.shape}')
         sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
         sents_vec = sents_vec * mask_cls[:, :, None].float()
         sent_scores = self.encoder(sents_vec, mask_cls).squeeze(-1)
